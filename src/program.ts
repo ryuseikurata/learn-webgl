@@ -33,6 +33,7 @@ class Program {
     gl.shaderSource(shader, source);
     gl.compileShader(shader);
     if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+      gl.deleteShader(shader);
       throw new Error("An error occurred compiling the shaders: " + gl.getShaderInfoLog(shader));
   }
   return shader;
@@ -54,6 +55,7 @@ class Program {
     gl.linkProgram(program);
 
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+      gl.deleteProgram(program);
       throw new Error("Unable to initialize the shader program: " + gl.getProgramInfoLog(program));
     }
 

@@ -18,20 +18,28 @@ const main = async (): Promise<void> => {
   const program = new Program(gl, { fShaderSource: fShader, vShaderSource: vShader });
   
   const positionAttributeLocation = gl.getAttribLocation(program.glProgram, "a_position");
+  const resolutionUniformLocation = gl.getUniformLocation(program.glProgram, "u_resolution");
+  const colorUniformLocation = gl.getUniformLocation(program.glProgram, "u_color");
+  const translationLocation = gl.getUniformLocation(program.glProgram, "u_translation");
+
   const positionBuffer = gl.createBuffer();
 
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 
-  const positions = [
-    0, 0,
-    0, 0.5,
-    0.7, 0,
-  ];
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+  // const positions = [
+  //   10, 20,
+  //   80, 20,
+  //   10, 30,
+  //   10, 30,
+  //   80, 20,
+  //   80, 30,
+  // ];
+  // gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+  setGeometry(gl);
 
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
-  gl.clearColor(0, 0, 0, 0);
+  gl.clearColor(0, 0.9, 0, 3);
   gl.clear(gl.COLOR_BUFFER_BIT);
 
   gl.useProgram(program.glProgram);
@@ -48,11 +56,46 @@ const main = async (): Promise<void> => {
   gl.vertexAttribPointer(
       positionAttributeLocation, size, type, normalize, stride, offset);
 
+  gl.uniform2f(resolutionUniformLocation, gl.canvas.width, gl.canvas.height);
+  gl.uniform4f(colorUniformLocation, Math.random(), Math.random(), Math.random(), 1);
+  gl.uniform2fv(translationLocation, [10, 10]);
+
   // draw
   var primitiveType = gl.TRIANGLES;
   var offset = 0;
-  var count = 3;
+  var count = 18;
   gl.drawArrays(primitiveType, offset, count);
+}
+
+const setGeometry = (gl: WebGLRenderingContext) => {
+  gl.bufferData(
+      gl.ARRAY_BUFFER,
+      new Float32Array([
+          // 左縦列
+          0, 0,
+          30, 0,
+          0, 150,
+          0, 150,
+          30, 0,
+          30, 150,
+ 
+          // 上の横棒
+          30, 0,
+          100, 0,
+          30, 30,
+          30, 30,
+          100, 0,
+          100, 30,
+ 
+          // 下の横棒
+          30, 60,
+          67, 60,
+          30, 90,
+          30, 90,
+          67, 60,
+          67, 90,
+      ]),
+      gl.STATIC_DRAW);
 }
 
 window.addEventListener('load', main);
