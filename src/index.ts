@@ -22,6 +22,7 @@ const main = async (): Promise<void> => {
   const colorUniformLocation = gl.getUniformLocation(program.glProgram, "u_color");
   const translationLocation = gl.getUniformLocation(program.glProgram, "u_translation");
   const rotationLocation = gl.getUniformLocation(program.glProgram, "u_rotation");
+  const scaleLocation = gl.getUniformLocation(program.glProgram, "u_scale");
 
   const positionBuffer = gl.createBuffer();
 
@@ -35,6 +36,7 @@ const main = async (): Promise<void> => {
   const rotation = [x, y];
   const translate = [100, 150];
   const color = [Math.random(), Math.random(), Math.random(), 1];
+  const scale = [0.8, 1];
 
   setGeometry(gl);
 
@@ -61,6 +63,7 @@ const main = async (): Promise<void> => {
   gl.uniform4fv(colorUniformLocation, color);
   gl.uniform2fv(translationLocation, translate);
   gl.uniform2fv(rotationLocation, rotation);
+  gl.uniform2fv(scaleLocation, scale);
 
   // draw
   var primitiveType = gl.TRIANGLES;
