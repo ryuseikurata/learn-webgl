@@ -21,25 +21,26 @@ const main = async (): Promise<void> => {
   const resolutionUniformLocation = gl.getUniformLocation(program.glProgram, "u_resolution");
   const colorUniformLocation = gl.getUniformLocation(program.glProgram, "u_color");
   const translationLocation = gl.getUniformLocation(program.glProgram, "u_translation");
+  const rotationLocation = gl.getUniformLocation(program.glProgram, "u_rotation");
 
   const positionBuffer = gl.createBuffer();
 
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 
-  // const positions = [
-  //   10, 20,
-  //   80, 20,
-  //   10, 30,
-  //   10, 30,
-  //   80, 20,
-  //   80, 30,
-  // ];
-  // gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+  const angle = 60;
+  const radian = angle * Math.PI / 180;
+  const x = Math.sin(radian);
+  const y = Math.cos(radian);
+
+  const rotation = [x, y];
+  const translate = [100, 150];
+  const color = [Math.random(), Math.random(), Math.random(), 1];
+
   setGeometry(gl);
 
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
-  gl.clearColor(0, 0.9, 0, 3);
+  gl.clearColor(0, 0, 0, 3);
   gl.clear(gl.COLOR_BUFFER_BIT);
 
   gl.useProgram(program.glProgram);
@@ -57,8 +58,9 @@ const main = async (): Promise<void> => {
       positionAttributeLocation, size, type, normalize, stride, offset);
 
   gl.uniform2f(resolutionUniformLocation, gl.canvas.width, gl.canvas.height);
-  gl.uniform4f(colorUniformLocation, Math.random(), Math.random(), Math.random(), 1);
-  gl.uniform2fv(translationLocation, [10, 10]);
+  gl.uniform4fv(colorUniformLocation, color);
+  gl.uniform2fv(translationLocation, translate);
+  gl.uniform2fv(rotationLocation, rotation);
 
   // draw
   var primitiveType = gl.TRIANGLES;
@@ -96,6 +98,6 @@ const setGeometry = (gl: WebGLRenderingContext) => {
           67, 90,
       ]),
       gl.STATIC_DRAW);
-}
+};
 
 window.addEventListener('load', main);

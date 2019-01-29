@@ -39,7 +39,7 @@ class Program {
   return shader;
   }
 
-  public initProgram() {
+  public initProgram(): WebGLProgram {
     const { fShaderSource, vShaderSource, gl } = this;
 
     const fShader = this.loadShader(gl.FRAGMENT_SHADER, fShaderSource);
