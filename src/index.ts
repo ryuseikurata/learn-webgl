@@ -1,4 +1,5 @@
-import Program from "./program";
+import Program from './program';
+import Vector3 from './math/Vector3';
 
 import fShader from './shaders/frag';
 import vShader from './shaders/vert';
@@ -20,23 +21,22 @@ const main = async (): Promise<void> => {
   const positionAttributeLocation = gl.getAttribLocation(program.glProgram, "a_position");
   const resolutionUniformLocation = gl.getUniformLocation(program.glProgram, "u_resolution");
   const colorUniformLocation = gl.getUniformLocation(program.glProgram, "u_color");
-  const translationLocation = gl.getUniformLocation(program.glProgram, "u_translation");
-  const rotationLocation = gl.getUniformLocation(program.glProgram, "u_rotation");
-  const scaleLocation = gl.getUniformLocation(program.glProgram, "u_scale");
+  const matrixLocation = gl.getUniformLocation(program.glProgram, "u_matrix");
 
   const positionBuffer = gl.createBuffer();
 
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 
-  const angle = 60;
-  const radian = angle * Math.PI / 180;
-  const x = Math.sin(radian);
-  const y = Math.cos(radian);
-
-  const rotation = [x, y];
-  const translate = [100, 150];
   const color = [Math.random(), Math.random(), Math.random(), 1];
-  const scale = [0.8, 1];
+
+  const translate = Vector3.translation(-100, 200);
+  const rotation = Vector3.rotation(60 * Math.PI / 180);
+  const scale = Vector3.scaling(0.8, 1);
+
+  const matrix = translate
+    .multiply(rotation)
+    .multiply(scale);
+
 
   setGeometry(gl);
 
@@ -56,14 +56,11 @@ const main = async (): Promise<void> => {
   var normalize = false; // don't normalize the data
   var stride = 0;        // 0 = move forward size * sizeof(type) each iteration to get the next position
   var offset = 0;        // start at the beginning of the buffer
-  gl.vertexAttribPointer(
-      positionAttributeLocation, size, type, normalize, stride, offset);
+  gl.vertexAttribPointer(positionAttributeLocation, size, type, normalize, stride, offset);
 
   gl.uniform2f(resolutionUniformLocation, gl.canvas.width, gl.canvas.height);
   gl.uniform4fv(colorUniformLocation, color);
-  gl.uniform2fv(translationLocation, translate);
-  gl.uniform2fv(rotationLocation, rotation);
-  gl.uniform2fv(scaleLocation, scale);
+  gl.uniformMatrix3fv(matrixLocation, false, matrix);
 
   // draw
   var primitiveType = gl.TRIANGLES;
