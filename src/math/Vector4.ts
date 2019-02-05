@@ -114,6 +114,25 @@ export default class Vector4 extends Float32Array {
     );
   }
 
+  public static perspective(
+    fieldOfViewInRadians: number, 
+    aspect: number, 
+    near: number, 
+    far: number
+  ): Vector4 {
+    const f = Math.tan(Math.PI * 0.5 - 0.5 * fieldOfViewInRadians);
+    const rangeInv = 1.0 / (near - far);
+
+    return new Vector4(
+      new Float32Array([
+        f / aspect, 0, 0, 0,
+        0, f, 0, 0,
+        0, 0, (near + far) * rangeInv, -1,
+        0, 0, near * far * rangeInv * 2, 0
+      ])
+    );
+  }
+
   public multiply(m4: Vector4): Vector4 {
     const out = new Float32Array(16);
     out[0] = m4[0] * this[0] + m4[1] * this[4] + m4[2] * this[8] + m4[3] * this[12];

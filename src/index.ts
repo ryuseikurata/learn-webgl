@@ -74,17 +74,21 @@ const main = async (): Promise<void> => {
 
     // 座標変換
 
-    const fudgeFactor = 1;
-    const projection = Vector4.projection(gl.canvas.clientWidth, gl.canvas.clientHeight, 400);
+    // const fudgeFactor = 1;
+    const fieldOfViewRadians = degToRad(60);
+    const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+    const zNear = 1;
+    const zFar = 2000;
+    const perspective = Vector4.perspective(fieldOfViewRadians, aspect, zNear, zFar);
+    // const projection = Vector4.projection(gl.canvas.clientWidth, gl.canvas.clientHeight, 400);
     // const orthographic = Vector4.orthographic(0, gl.canvas.clientWidth, gl.canvas.clientHeight, 0, 400, -400)
-    const translate = Vector4.translation(150, 150, 100);
-    const rotationX = Vector4.xRotation((10 * Math.PI) / 180);
-    const rotationY = Vector4.yRotation((20 * Math.PI) / 180);
-    const rotationZ = Vector4.zRotation((10 * Math.PI) / 180);
+    const translate = Vector4.translation(-100, 50, -200);
+    const rotationX = Vector4.xRotation(degToRad(15));
+    const rotationY = Vector4.yRotation(degToRad(150));
+    const rotationZ = Vector4.zRotation(degToRad(150));
     const scale = Vector4.scaling(0.9, 1, 0.8);
     
-    const matrix = Vector4.makeZToWMatrix(fudgeFactor)
-      .multiply(projection)
+    const matrix = perspective
       .multiply(translate)
       .multiply(rotationX)
       .multiply(rotationY)
@@ -101,6 +105,10 @@ const main = async (): Promise<void> => {
 
   drawScene();
 };
+
+const degToRad = (d: number) => {
+  return d * Math.PI / 180;
+}
 
 const setGeometry = (gl: WebGLRenderingContext) => {
   gl.bufferData(
