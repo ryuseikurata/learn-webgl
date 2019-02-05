@@ -1,5 +1,5 @@
 import Program from "./program";
-import Vector3 from "./math/Vector3";
+import Vector4 from "./math/Vector4";
 
 import fShader from "./shaders/frag";
 import vShader from "./shaders/vert";
@@ -40,11 +40,11 @@ const main = async (): Promise<void> => {
 
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 
-  var size = 2; // 2 components per iteration
-  var type = gl.FLOAT; // the data is 32bit floats
-  var normalize = false; // don't normalize the data
-  var stride = 0; // 0 = move forward size * sizeof(type) each iteration to get the next position
-  var offset = 0; // start at the beginning of the buffer
+  var size = 3;
+  var type = gl.FLOAT;
+  var normalize = false;
+  var stride = 0;
+  var offset = 0;
   gl.vertexAttribPointer(
     positionAttributeLocation,
     size,
@@ -59,17 +59,22 @@ const main = async (): Promise<void> => {
 
   setGeometry(gl);
 
-  const projection = Vector3.projection(gl.canvas.clientWidth, gl.canvas.clientHeight)
-  const translate = Vector3.translation(100, 100);
-  const rotation = Vector3.rotation((45 * Math.PI) / 180);
-  const scale = Vector3.scaling(0.9, 1);
+  const projection = Vector4.projection(gl.canvas.clientWidth, gl.canvas.clientHeight, 400)
+  const translate = Vector4.translation(150, 100, 100);
+  const rotationX = Vector4.xRotation((50 * Math.PI) / 180);
+  const rotationY = Vector4.yRotation((20 * Math.PI) / 180);
+  const rotationZ = Vector4.zRotation((60 * Math.PI) / 180);
+  const scale = Vector4.scaling(0.9, 1, 0.8);
   
-  const matrix = Vector3.identity()
+  const matrix = Vector4.identity()
     .multiply(projection)
     .multiply(translate)
-    .multiply(rotation)
+    .multiply(rotationX)
+    .multiply(rotationY)
+    .multiply(rotationZ)
     .multiply(scale)
-  gl.uniformMatrix3fv(matrixLocation, false, matrix);    
+  
+  gl.uniformMatrix4fv(matrixLocation, false, matrix);    
 
   // draw
   var primitiveType = gl.TRIANGLES;
@@ -84,28 +89,28 @@ const setGeometry = (gl: WebGLRenderingContext) => {
     gl.ARRAY_BUFFER,
     new Float32Array([
       // 左縦列
-      0, 0,
-      30, 0,
-      0, 150,
-      0, 150,
-      30, 0,
-      30, 150,
+      0,   0,  0,
+      30,   0,  0,
+       0, 150,  0,
+       0, 150,  0,
+      30,   0,  0,
+      30, 150,  0,
 
       // 上の横棒
-      30, 0,
-      100, 0,
-      30, 30,
-      30, 30,
-      100, 0,
-      100, 30,
+      30,   0,  0,
+     100,   0,  0,
+      30,  30,  0,
+      30,  30,  0,
+     100,   0,  0,
+     100,  30,  0,
 
       // 下の横棒
-      30, 60,
-      67, 60,
-      30, 90,
-      30, 90,
-      67, 60,
-      67, 90,
+      30,  60,  0,
+      67,  60,  0,
+      30,  90,  0,
+      30,  90,  0,
+      67,  60,  0,
+      67,  90,  0
     ]),
     gl.STATIC_DRAW);
 };
