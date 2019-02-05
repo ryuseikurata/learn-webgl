@@ -5,8 +5,8 @@ import fShader from "./shaders/frag";
 import vShader from "./shaders/vert";
 
 const main = async (): Promise<void> => {
-  const width =  800;
-  const height = 450;
+  const width =  window.innerWidth;
+  const height = window.innerHeight;
   const canvas = document.createElement("canvas") as HTMLCanvasElement;
   canvas.width = width;
   canvas.height = height;
