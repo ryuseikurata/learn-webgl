@@ -82,6 +82,27 @@ export default class Vector4 extends Float32Array {
     );
   }
 
+  public static orthographic(
+    left: number,
+    right: number,
+    bottom: number,
+    top: number,
+    near: number,
+    far: number
+  ): Vector4 {
+    return new Vector4(
+      new Float32Array([
+        2 / (right - left), 0, 0, 0,
+        0, 2 / (top - bottom), 0, 0,
+        0, 0, 2 / (near - far), 0,
+        (left + right) / (left - right),
+        (bottom + top) / (bottom - top),
+        (near + far) / (near - far),
+        1,
+      ])
+    );
+  }
+
   public multiply(m4: Vector4): Vector4 {
     const out = new Float32Array(16);
     out[0] = m4[0] * this[0] + m4[1] * this[4] + m4[2] * this[8] + m4[3] * this[12];
