@@ -103,6 +103,17 @@ export default class Vector4 extends Float32Array {
     );
   }
 
+  public static makeZToWMatrix(fudgeFactor: number): Vector4 {
+    return new Vector4(
+      new Float32Array([
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, fudgeFactor,
+        0, 0, 0, 1,
+      ])
+    );
+  }
+
   public multiply(m4: Vector4): Vector4 {
     const out = new Float32Array(16);
     out[0] = m4[0] * this[0] + m4[1] * this[4] + m4[2] * this[8] + m4[3] * this[12];

@@ -5,8 +5,8 @@ import fShader from "./shaders/frag";
 import vShader from "./shaders/vert";
 
 const main = async (): Promise<void> => {
-  const width = 400;
-  const height = 300;
+  const width =  800;
+  const height = 450;
   const canvas = document.createElement("canvas") as HTMLCanvasElement;
   canvas.width = width;
   canvas.height = height;
@@ -19,7 +19,7 @@ const main = async (): Promise<void> => {
     vShaderSource: vShader
   });
 
-  const positionAttributeLocation = gl.getAttribLocation(program.glProgram, "a_position");
+  const positionLocation = gl.getAttribLocation(program.glProgram, "a_position");
   const colorLocation = gl.getAttribLocation(program.glProgram, "a_color");
   const matrixLocation = gl.getUniformLocation(program.glProgram, "u_matrix");
 
@@ -34,15 +34,17 @@ const main = async (): Promise<void> => {
   const drawScene = () => {
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
   
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     gl.enable(gl.CULL_FACE);
+
     gl.enable(gl.DEPTH_TEST);
 
     gl.useProgram(program.glProgram);
   
-    gl.enableVertexAttribArray(positionAttributeLocation);
+    // 座標設定
+
+    gl.enableVertexAttribArray(positionLocation);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 
@@ -52,8 +54,10 @@ const main = async (): Promise<void> => {
     var stride = 0;
     var offset = 0;
     gl.vertexAttribPointer(
-      positionAttributeLocation, size, type, normalize, stride, offset
+      positionLocation, size, type, normalize, stride, offset
     );
+
+    // 色設定
 
     gl.enableVertexAttribArray(colorLocation);
 
@@ -68,24 +72,27 @@ const main = async (): Promise<void> => {
       colorLocation, size, type, normalize, stride, offset
     );
 
-    const orthographic = Vector4.orthographic(0, gl.canvas.clientWidth, gl.canvas.clientHeight, 0, 400, -400)
-    const translate = Vector4.translation(150, 100, 100);
-    const rotationX = Vector4.xRotation((20 * Math.PI) / 180);
-    const rotationY = Vector4.yRotation((30 * Math.PI) / 180);
+    // 座標変換
+
+    const fudgeFactor = 1;
+    const projection = Vector4.projection(gl.canvas.clientWidth, gl.canvas.clientHeight, 400);
+    // const orthographic = Vector4.orthographic(0, gl.canvas.clientWidth, gl.canvas.clientHeight, 0, 400, -400)
+    const translate = Vector4.translation(150, 150, 100);
+    const rotationX = Vector4.xRotation((10 * Math.PI) / 180);
+    const rotationY = Vector4.yRotation((20 * Math.PI) / 180);
     const rotationZ = Vector4.zRotation((10 * Math.PI) / 180);
     const scale = Vector4.scaling(0.9, 1, 0.8);
     
-    const matrix = Vector4.identity()
-      .multiply(orthographic)
+    const matrix = Vector4.makeZToWMatrix(fudgeFactor)
+      .multiply(projection)
       .multiply(translate)
       .multiply(rotationX)
       .multiply(rotationY)
       .multiply(rotationZ)
       .multiply(scale)
     
-    gl.uniformMatrix4fv(matrixLocation, false, matrix);    
+    gl.uniformMatrix4fv(matrixLocation, false, matrix);
   
-    // draw
     var primitiveType = gl.TRIANGLES;
     var offset = 0;
     var count = 16 * 6;
