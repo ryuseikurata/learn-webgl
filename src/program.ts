@@ -11,8 +11,8 @@ class Program {
   private gl: WebGLRenderingContext;
 
   constructor(
-    gl: WebGLRenderingContext, 
-    { fShaderSource, vShaderSource }: IProgram,
+    gl: WebGLRenderingContext,
+    { fShaderSource, vShaderSource }: IProgram
   ) {
     this.gl = gl;
 
@@ -27,16 +27,19 @@ class Program {
 
     const shader = gl.createShader(type);
     if (!shader) {
-      throw new Error('shader is null');
+      throw new Error("shader is null");
     }
 
     gl.shaderSource(shader, source);
     gl.compileShader(shader);
     if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
       gl.deleteShader(shader);
-      throw new Error("An error occurred compiling the shaders: " + gl.getShaderInfoLog(shader));
-  }
-  return shader;
+      throw new Error(
+        "An error occurred compiling the shaders: " +
+          gl.getShaderInfoLog(shader)
+      );
+    }
+    return shader;
   }
 
   public initProgram(): WebGLProgram {
@@ -47,7 +50,7 @@ class Program {
 
     const program = gl.createProgram();
     if (!program) {
-      throw new Error('program is null');
+      throw new Error("program is null");
     }
 
     gl.attachShader(program, vShader);
@@ -56,12 +59,14 @@ class Program {
 
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
       gl.deleteProgram(program);
-      throw new Error("Unable to initialize the shader program: " + gl.getProgramInfoLog(program));
+      throw new Error(
+        "Unable to initialize the shader program: " +
+          gl.getProgramInfoLog(program)
+      );
     }
 
     return program;
   }
+}
 
- }
- 
- export default Program;
+export default Program;
