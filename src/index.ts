@@ -1,5 +1,5 @@
 import Program from "./program";
-import Vector4 from "./math/Vector4";
+import Matrix4 from "./math/Matrix4";
 
 import fShader from "./shaders/frag";
 import vShader from "./shaders/vert";
@@ -31,7 +31,19 @@ const main = async (): Promise<void> => {
   gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
   setColors(gl);
 
-  const drawScene = () => {
+  let yRad = 150;
+  let translate = {t1: -50, t2: 70, t3: -200};
+  let rotationX = degToRad(0);
+  let rotationY = degToRad(yRad);
+  let rotationZ = degToRad(180);
+  let scale = {s1: 1, s2: 1, s3: 1};
+
+  let oldTime = 0;
+
+  const drawScene = (time: number) => {
+    const deltaTime = time - oldTime;
+    oldTime = time;
+
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
   
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -74,26 +86,28 @@ const main = async (): Promise<void> => {
 
     // 座標変換
 
-    // const fudgeFactor = 1;
     const fieldOfViewRadians = degToRad(60);
     const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
     const zNear = 1;
     const zFar = 2000;
-    const perspective = Vector4.perspective(fieldOfViewRadians, aspect, zNear, zFar);
-    // const projection = Vector4.projection(gl.canvas.clientWidth, gl.canvas.clientHeight, 400);
-    // const orthographic = Vector4.orthographic(0, gl.canvas.clientWidth, gl.canvas.clientHeight, 0, 400, -400)
-    const translate = Vector4.translation(-100, 50, -200);
-    const rotationX = Vector4.xRotation(degToRad(15));
-    const rotationY = Vector4.yRotation(degToRad(150));
-    const rotationZ = Vector4.zRotation(degToRad(150));
-    const scale = Vector4.scaling(0.9, 1, 0.8);
+    const perspective = Matrix4.perspective(fieldOfViewRadians, aspect, zNear, zFar);
+    // const projection = Matrix4.projection(gl.canvas.clientWidth, gl.canvas.clientHeight, 400);
+    // const orthographic = Matrix4.orthographic(0, gl.canvas.clientWidth, gl.canvas.clientHeight, 0, 400, -400)
     
-    const matrix = perspective
-      .multiply(translate)
-      .multiply(rotationX)
-      .multiply(rotationY)
-      .multiply(rotationZ)
-      .multiply(scale)
+    yRad += 100 * deltaTime * 0.001;
+    rotationY = degToRad(yRad);
+
+    const cameraMatrix = Matrix4.yRotation(degToRad(0))
+      .multiply(Matrix4.translation({t1: 0, t2: 0, t3: 0}))
+      .inverse();
+    
+    const matrix = cameraMatrix
+      .multiply(perspective)
+      .multiply(Matrix4.translation(translate))
+      .multiply(Matrix4.xRotation(rotationX))
+      .multiply(Matrix4.yRotation(rotationY))
+      .multiply(Matrix4.zRotation(rotationZ))
+      .multiply(Matrix4.scaling(scale))
     
     gl.uniformMatrix4fv(matrixLocation, false, matrix);
   
@@ -101,9 +115,11 @@ const main = async (): Promise<void> => {
     var offset = 0;
     var count = 16 * 6;
     gl.drawArrays(primitiveType, offset, count);
+
+    requestAnimationFrame(drawScene);
   }
 
-  drawScene();
+  requestAnimationFrame(drawScene);
 };
 
 const degToRad = (d: number) => {

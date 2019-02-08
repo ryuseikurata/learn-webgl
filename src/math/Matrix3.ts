@@ -1,6 +1,6 @@
-export default class Vector3 extends Float32Array {
-  public static identity(): Vector3 {
-    return new Vector3(
+export default class Matrix3 extends Float32Array {
+  public static identity(): Matrix3 {
+    return new Matrix3(
       new Float32Array([
         1, 0, 0,
         0, 1, 0,
@@ -9,8 +9,8 @@ export default class Vector3 extends Float32Array {
     );
   }
 
-  public static translation(x: number, y: number): Vector3 {
-    return new Vector3(
+  public static translation(x: number, y: number): Matrix3 {
+    return new Matrix3(
       new Float32Array([
         1, 0, 0,
         0, 1, 0,
@@ -19,10 +19,10 @@ export default class Vector3 extends Float32Array {
     );
   }
 
-  public static rotation(radian: number): Vector3 {
+  public static rotation(radian: number): Matrix3 {
     var c = Math.cos(radian);
     var s = Math.sin(radian);
-    return new Vector3(
+    return new Matrix3(
       new Float32Array([
         c,-s, 0,
         s, c, 0,
@@ -31,8 +31,8 @@ export default class Vector3 extends Float32Array {
     );
   }
 
-  public static scaling(x: number, y: number): Vector3 {
-    return new Vector3(
+  public static scaling(x: number, y: number): Matrix3 {
+    return new Matrix3(
       new Float32Array([
         x, 0, 0,
         0, y, 0,
@@ -41,8 +41,8 @@ export default class Vector3 extends Float32Array {
     );
   }
 
-  public static projection(w: number, h: number): Vector3 {
-    return new Vector3(
+  public static projection(w: number, h: number): Matrix3 {
+    return new Matrix3(
       new Float32Array([
         2 / w, 0, 0,
         0, -2 / h, 0,
@@ -51,7 +51,11 @@ export default class Vector3 extends Float32Array {
     );
   }
 
-  public multiply(m3: Vector3): Vector3 {
+  public static determinant(input: Matrix3): number {
+    return input[0] * input[3] - input[1] * input[2];
+  }
+
+  public multiply(m3: Matrix3): Matrix3 {
     const out = new Float32Array(9);
     out[0] = m3[0] * this[0] + m3[1] * this[3] + m3[2] * this[6];
     out[1] = m3[0] * this[1] + m3[1] * this[4] + m3[2] * this[7];
@@ -63,6 +67,6 @@ export default class Vector3 extends Float32Array {
     out[7] = m3[6] * this[1] + m3[7] * this[4] + m3[8] * this[7];
     out[8] = m3[6] * this[2] + m3[7] * this[5] + m3[8] * this[8];
 
-    return new Vector3(out);
+    return new Matrix3(out);
   } 
 }
