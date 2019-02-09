@@ -7,6 +7,38 @@ import vShader from "./shaders/vert";
 const main = async (): Promise<void> => {
   const width =  window.innerWidth;
   const height = window.innerHeight;
+
+  let yRad = 150;
+  let translate = {t1: 0, t2: 70, t3: -200};
+  let rotationX = degToRad(0);
+  let rotationY = degToRad(150);
+  let rotationZ = degToRad(180);
+  let scale = {s1: 1, s2: 1, s3: 1};
+
+  const xSliderElem = buildSlider("xSlider", -width * 0.1, width * 0.1, translate.t1);
+  document.body.append(xSliderElem);
+  xSliderElem.onchange = (event: Event) => {
+    const elem = <HTMLInputElement>event.srcElement;
+    translate.t1 = elem.valueAsNumber;
+    drawScene
+  }
+
+  const ySliderElem = buildSlider("ySlider", -height * 0.1, height * 0.1, translate.t2);
+  document.body.append(ySliderElem);
+  ySliderElem.onchange = (event: Event) => {
+    const elem = <HTMLInputElement>event.srcElement;
+    translate.t2 = elem.valueAsNumber;
+    drawScene
+  }
+
+  const zSliderElem = buildSlider("zSlider", -500, 0, translate.t3);
+  document.body.append(zSliderElem);
+  zSliderElem.onchange = (event: Event) => {
+    const elem = <HTMLInputElement>event.srcElement;
+    translate.t3 = elem.valueAsNumber;
+    drawScene
+  }
+
   const canvas = document.createElement("canvas") as HTMLCanvasElement;
   canvas.width = width;
   canvas.height = height;
@@ -30,13 +62,6 @@ const main = async (): Promise<void> => {
   const colorBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
   setColors(gl);
-
-  let yRad = 150;
-  let translate = {t1: -50, t2: 70, t3: -200};
-  let rotationX = degToRad(0);
-  let rotationY = degToRad(yRad);
-  let rotationZ = degToRad(180);
-  let scale = {s1: 1, s2: 1, s3: 1};
 
   let oldTime = 0;
 
@@ -124,6 +149,17 @@ const main = async (): Promise<void> => {
 
 const degToRad = (d: number) => {
   return d * Math.PI / 180;
+}
+
+const buildSlider = (id: string, min: number, max: number, value: number = 0): HTMLInputElement => {
+  const element = document.createElement("input") as HTMLInputElement;
+  element.type = "range";
+  element.min = `${min}`;
+  element.max = `${max}`;
+  element.value = `${value}`;
+  element.id = id;
+
+  return element;
 }
 
 const setGeometry = (gl: WebGLRenderingContext) => {
