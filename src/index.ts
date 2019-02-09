@@ -104,11 +104,22 @@ const main = async (): Promise<void> => {
     rotation.r2 = yRad;    
 
     const cameraMatrix = Matrix4.yRotation(degToRad(cameraAngle))
-      .multiply(Matrix4.translation({t1: 0, t2: 0, t3: 500}));     
-    const viewMatrix = cameraMatrix.inverse();
+      .multiply(Matrix4.translation({t1: 0, t2: 0, t3: 300}));  
+      
+    const cameraPosition = new Float32Array([
+      cameraMatrix[12],
+      cameraMatrix[13],
+      cameraMatrix[14],
+    ]);
+    const up = new Float32Array([0, 1, 0]);
+    const center = new Float32Array([0, 0, 0]);
+
+    const viewMatrix = cameraMatrix
+      .multiply(Matrix4.lookAt(cameraPosition, center, up))
+      .inverse();
     const viewProjectionMatrix = perspective.multiply(viewMatrix)
 
-    const objectCount = 3;
+    const objectCount = 5;
     for(var i = 0; i < objectCount; ++i) {
       const angle = i * Math.PI * 2 / objectCount;
       translate.t1 = Math.cos(angle) * 200;

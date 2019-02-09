@@ -1,3 +1,9 @@
+import Vector3, {
+  cross,
+  sub,
+  normalize
+} from './Vector3';
+
 export default class Matrix4 extends Float32Array {
   public static identity(): Matrix4 {
     return new Matrix4(
@@ -140,6 +146,21 @@ export default class Matrix4 extends Float32Array {
     // out[0] = 
 
     return new Matrix4(out);
+  }
+
+  public static lookAt(eye: Vector3, center: Vector3, up: Vector3) {
+    const zAxis = normalize(sub(eye, center));
+    const xAxis = normalize(cross(up, zAxis));
+    const yAxis = normalize(cross(zAxis, xAxis));
+
+    return new Matrix4(
+      new Float32Array([
+        xAxis[0], xAxis[1], xAxis[2], 0,
+        yAxis[0], yAxis[1], yAxis[2], 0,
+        zAxis[0], zAxis[1], zAxis[2], 0,
+        eye[0], eye[1], eye[2], 1,
+      ])
+    );
   }
 
   public multiply(m4: Matrix4): Matrix4 {
