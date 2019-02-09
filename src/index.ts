@@ -8,34 +8,19 @@ const main = async (): Promise<void> => {
   const width =  window.innerWidth;
   const height = window.innerHeight;
 
+  let cameraAngle = 0;
   let yRad = 150;
   let translate = {t1: 0, t2: 70, t3: -200};
   let rotation = {r1: 0, r2: 150, r3: 180};
   let scale = {s1: 1, s2: 1, s3: 1};
 
-  // const xSliderElem = buildSlider("xSlider", -width * 0.1, width * 0.1, translate.t1);
-  // document.body.append(xSliderElem);
-  // xSliderElem.onchange = (event: Event) => {
-  //   const elem = <HTMLInputElement>event.srcElement;
-  //   translate.t1 = elem.valueAsNumber;
-  //   drawScene
-  // }
-
-  // const ySliderElem = buildSlider("ySlider", -height * 0.1, height * 0.1, translate.t2);
-  // document.body.append(ySliderElem);
-  // ySliderElem.onchange = (event: Event) => {
-  //   const elem = <HTMLInputElement>event.srcElement;
-  //   translate.t2 = elem.valueAsNumber;
-  //   drawScene
-  // }
-
-  // const zSliderElem = buildSlider("zSlider", -500, 0, translate.t3);
-  // document.body.append(zSliderElem);
-  // zSliderElem.onchange = (event: Event) => {
-  //   const elem = <HTMLInputElement>event.srcElement;
-  //   translate.t3 = elem.valueAsNumber;
-  //   drawScene
-  // }
+  const s1 = buildSlider("s1", -360, 360, 0);
+  document.body.append(s1);
+  s1.oninput = (event: Event) => {
+    const elem = <HTMLInputElement>event.srcElement;
+    cameraAngle = elem.valueAsNumber;
+    drawScene
+  };
 
   const canvas = document.createElement("canvas") as HTMLCanvasElement;
   canvas.width = width;
@@ -118,7 +103,7 @@ const main = async (): Promise<void> => {
     yRad += 100 * deltaTime * 0.001;
     rotation.r2 = yRad;    
 
-    const cameraMatrix = Matrix4.yRotation(degToRad(0))
+    const cameraMatrix = Matrix4.yRotation(degToRad(cameraAngle))
       .multiply(Matrix4.translation({t1: 0, t2: 0, t3: 500}));     
     const viewMatrix = cameraMatrix.inverse();
     const viewProjectionMatrix = perspective.multiply(viewMatrix)
