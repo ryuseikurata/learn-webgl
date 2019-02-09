@@ -10,34 +10,32 @@ const main = async (): Promise<void> => {
 
   let yRad = 150;
   let translate = {t1: 0, t2: 70, t3: -200};
-  let rotationX = degToRad(0);
-  let rotationY = degToRad(150);
-  let rotationZ = degToRad(180);
+  let rotation = {r1: 0, r2: 150, r3: 180};
   let scale = {s1: 1, s2: 1, s3: 1};
 
-  const xSliderElem = buildSlider("xSlider", -width * 0.1, width * 0.1, translate.t1);
-  document.body.append(xSliderElem);
-  xSliderElem.onchange = (event: Event) => {
-    const elem = <HTMLInputElement>event.srcElement;
-    translate.t1 = elem.valueAsNumber;
-    drawScene
-  }
+  // const xSliderElem = buildSlider("xSlider", -width * 0.1, width * 0.1, translate.t1);
+  // document.body.append(xSliderElem);
+  // xSliderElem.onchange = (event: Event) => {
+  //   const elem = <HTMLInputElement>event.srcElement;
+  //   translate.t1 = elem.valueAsNumber;
+  //   drawScene
+  // }
 
-  const ySliderElem = buildSlider("ySlider", -height * 0.1, height * 0.1, translate.t2);
-  document.body.append(ySliderElem);
-  ySliderElem.onchange = (event: Event) => {
-    const elem = <HTMLInputElement>event.srcElement;
-    translate.t2 = elem.valueAsNumber;
-    drawScene
-  }
+  // const ySliderElem = buildSlider("ySlider", -height * 0.1, height * 0.1, translate.t2);
+  // document.body.append(ySliderElem);
+  // ySliderElem.onchange = (event: Event) => {
+  //   const elem = <HTMLInputElement>event.srcElement;
+  //   translate.t2 = elem.valueAsNumber;
+  //   drawScene
+  // }
 
-  const zSliderElem = buildSlider("zSlider", -500, 0, translate.t3);
-  document.body.append(zSliderElem);
-  zSliderElem.onchange = (event: Event) => {
-    const elem = <HTMLInputElement>event.srcElement;
-    translate.t3 = elem.valueAsNumber;
-    drawScene
-  }
+  // const zSliderElem = buildSlider("zSlider", -500, 0, translate.t3);
+  // document.body.append(zSliderElem);
+  // zSliderElem.onchange = (event: Event) => {
+  //   const elem = <HTMLInputElement>event.srcElement;
+  //   translate.t3 = elem.valueAsNumber;
+  //   drawScene
+  // }
 
   const canvas = document.createElement("canvas") as HTMLCanvasElement;
   canvas.width = width;
@@ -116,30 +114,35 @@ const main = async (): Promise<void> => {
     const zNear = 1;
     const zFar = 2000;
     const perspective = Matrix4.perspective(fieldOfViewRadians, aspect, zNear, zFar);
-    // const projection = Matrix4.projection(gl.canvas.clientWidth, gl.canvas.clientHeight, 400);
-    // const orthographic = Matrix4.orthographic(0, gl.canvas.clientWidth, gl.canvas.clientHeight, 0, 400, -400)
     
     yRad += 100 * deltaTime * 0.001;
-    rotationY = degToRad(yRad);
+    rotation.r2 = yRad;    
 
     const cameraMatrix = Matrix4.yRotation(degToRad(0))
-      .multiply(Matrix4.translation({t1: 0, t2: 0, t3: 0}))
-      .inverse();
-    
-    const matrix = cameraMatrix
-      .multiply(perspective)
-      .multiply(Matrix4.translation(translate))
-      .multiply(Matrix4.xRotation(rotationX))
-      .multiply(Matrix4.yRotation(rotationY))
-      .multiply(Matrix4.zRotation(rotationZ))
-      .multiply(Matrix4.scaling(scale))
-    
-    gl.uniformMatrix4fv(matrixLocation, false, matrix);
+      .multiply(Matrix4.translation({t1: 0, t2: 0, t3: 500}));     
+    const viewMatrix = cameraMatrix.inverse();
+    const viewProjectionMatrix = perspective.multiply(viewMatrix)
+
+    const objectCount = 3;
+    for(var i = 0; i < objectCount; ++i) {
+      const angle = i * Math.PI * 2 / objectCount;
+      translate.t1 = Math.cos(angle) * 200;
+      translate.t3 = Math.sin(angle) * 200;
+
+      const matrix = viewProjectionMatrix
+        .multiply(Matrix4.translation(translate))
+        .multiply(Matrix4.xRotation(degToRad(rotation.r1)))
+        .multiply(Matrix4.yRotation(degToRad(rotation.r2)))
+        .multiply(Matrix4.zRotation(degToRad(rotation.r3)))
+        .multiply(Matrix4.scaling(scale))
+
+      gl.uniformMatrix4fv(matrixLocation, false, matrix);
   
-    var primitiveType = gl.TRIANGLES;
-    var offset = 0;
-    var count = 16 * 6;
-    gl.drawArrays(primitiveType, offset, count);
+      var primitiveType = gl.TRIANGLES;
+      var offset = 0;
+      var count = 16 * 6;
+      gl.drawArrays(primitiveType, offset, count);
+    }
 
     requestAnimationFrame(drawScene);
   }
