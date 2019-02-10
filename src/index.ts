@@ -1,5 +1,6 @@
 import Program from "./program";
-import Matrix4 from "./math/Matrix4";
+import Matrix4, { IMatrix4 } from "./math/Matrix4";
+import Vector3, { IVector3 } from "./math/Vector3";
 
 import fShader from "./shaders/frag";
 import vShader from "./shaders/vert";
@@ -10,9 +11,9 @@ const main = async (): Promise<void> => {
 
   let cameraAngle = 0;
   let yRad = 150;
-  let translate = {t1: 0, t2: 70, t3: -200};
-  let rotation = {r1: 0, r2: 150, r3: 180};
-  let scale = {s1: 1, s2: 1, s3: 1};
+  let translate: IVector3 = new Float32Array([0, 70, -200]);
+  let rotation: IVector3 = new Float32Array([0, 150, -180]);
+  let scale: IVector3 = new Float32Array([1, 1, 1]);
 
   const s1 = buildSlider("s1", -360, 360, 0);
   document.body.append(s1);
@@ -101,10 +102,12 @@ const main = async (): Promise<void> => {
     const perspective = Matrix4.perspective(fieldOfViewRadians, aspect, zNear, zFar);
     
     yRad += 100 * deltaTime * 0.001;
-    rotation.r2 = yRad;    
+    rotation[1] = yRad;    
 
-    const cameraMatrix = Matrix4.yRotation(degToRad(cameraAngle))
-      .multiply(Matrix4.translation({t1: 0, t2: 0, t3: 300}));  
+    const cameraMatrix = Matrix4.multiply(
+      Matrix4.yRotation(degToRad(cameraAngle)),
+      Matrix4.translation(new Float32Array([0, 0, 300]))
+    );
       
     const cameraPosition = new Float32Array([
       cameraMatrix[12],
@@ -114,23 +117,34 @@ const main = async (): Promise<void> => {
     const up = new Float32Array([0, 1, 0]);
     const center = new Float32Array([0, 0, 0]);
 
-    const viewMatrix = cameraMatrix
-      .multiply(Matrix4.lookAt(cameraPosition, center, up))
-      .inverse();
-    const viewProjectionMatrix = perspective.multiply(viewMatrix)
+    const viewMatrix = Matrix4.inverse(
+      Matrix4.multiply(
+        cameraMatrix,
+        Matrix4.lookAt(cameraPosition, center, up)
+      )
+    );
+    const viewProjectionMatrix: IMatrix4 = Matrix4.multiply(
+      perspective,
+      viewMatrix
+    );
 
     const objectCount = 5;
     for(var i = 0; i < objectCount; ++i) {
       const angle = i * Math.PI * 2 / objectCount;
-      translate.t1 = Math.cos(angle) * 200;
-      translate.t3 = Math.sin(angle) * 200;
+      translate[0] = Math.cos(angle) * 200;
+      translate[2] = Math.sin(angle) * 200;
 
-      const matrix = viewProjectionMatrix
-        .multiply(Matrix4.translation(translate))
-        .multiply(Matrix4.xRotation(degToRad(rotation.r1)))
-        .multiply(Matrix4.yRotation(degToRad(rotation.r2)))
-        .multiply(Matrix4.zRotation(degToRad(rotation.r3)))
-        .multiply(Matrix4.scaling(scale))
+
+      const matrix = [
+        viewProjectionMatrix,
+        Matrix4.translation(translate),
+        Matrix4.xRotation(degToRad(rotation[0])),
+        Matrix4.yRotation(degToRad(rotation[1])),
+        Matrix4.zRotation(degToRad(rotation[2])),
+        Matrix4.scale(scale),
+      ].reduce((sum: IMatrix4, target: IMatrix4) => {
+        return Matrix4.multiply(sum, target);
+      }, Matrix4.identity());
 
       gl.uniformMatrix4fv(matrixLocation, false, matrix);
   
