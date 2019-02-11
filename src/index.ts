@@ -18,11 +18,12 @@ const main = async (): Promise<void> => {
   const camera = new PerspectiveCamera(scene);
   camera.position = {x: 0, y: 0, z: -50};
 
-  const m2 = MeshBuilder.createCube(scene, 10, 10, 10);
-  m2.position = {x: 0, y: 0, z: 0};
-  m2.rotation = {x: 30, y: 30, z: 30};
+  const m1 = MeshBuilder.createCube(scene, 10, 10, 10);
+  m1.position = {x: 0, y: 0, z: 0};
 
   function render() {
+    m1.rotation.x += 1;
+    m1.rotation.y += 1;
     scene.render();
     requestAnimationFrame(render);
   }

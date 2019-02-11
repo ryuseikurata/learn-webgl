@@ -20,7 +20,7 @@ export interface IScene {
 class Scene implements IScene {
   public engine: IEngine;
 
-  public clearColor: IColorRGB = { r: 51, g: 51, b: 76 };
+  public clearColor: IColorRGB = { r: 255, g: 255, b: 255 };
   public activeCamera?: ICamera;
 
   public renderManager: RenderManager = new RenderManager(this);
