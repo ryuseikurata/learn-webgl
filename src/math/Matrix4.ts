@@ -1,4 +1,4 @@
-import Vector3, { IVector3 } from './Vector3';
+import Vector3, { IVector3 } from './vector3';
 
 export type IMatrix4 = Float32Array;
 
