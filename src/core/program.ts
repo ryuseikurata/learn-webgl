@@ -218,8 +218,14 @@ class Program implements IProgram {
         case WebGLRenderingContext.FLOAT_MAT4:
           gl.uniformMatrix4fv(position, false, value as Float32Array);
           break;
+        case WebGLRenderingContext.INT:
+          gl.uniform1i(position, value as number);
+          break;
+        case WebGLRenderingContext.FLOAT:
+          gl.uniform1f(position, value as number);
+          break;
         default:
-          throw new Error('undefined uniform type');
+          throw new Error(`undefined uniform type ${type}`);
       }
     }
   }

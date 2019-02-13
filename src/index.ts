@@ -2,6 +2,7 @@ import Engine from "./core/engine";
 import Scene from "./core/scene";
 import MeshBuilder from "./mesh-builder/mesh-builder";
 import PerspectiveCamera from './camera/perspective-camera';
+import DirectionalLight from './light/directional-light';
 
 const main = async (): Promise<void> => {
   const width = window.innerWidth;
@@ -18,12 +19,16 @@ const main = async (): Promise<void> => {
   const camera = new PerspectiveCamera(scene);
   camera.position = {x: 0, y: 0, z: -50};
 
-  const m1 = MeshBuilder.createCube(scene, 10, 10, 10);
-  m1.position = {x: 0, y: 0, z: 0};
+  const light1 = new DirectionalLight(scene);
+  light1.direction = { x: -1, y: -1, z: -1 };
+  light1.intensity = 0.4;
+
+  const mesh1 = MeshBuilder.createCube(scene, 10, 10, 10);
+  mesh1.position = {x: 0, y: 0, z: 0};
 
   function render() {
-    m1.rotation.x += 1;
-    m1.rotation.y += 1;
+    mesh1.rotation.x += 1;
+    mesh1.rotation.y += 1;
     scene.render();
     requestAnimationFrame(render);
   }

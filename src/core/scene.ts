@@ -2,7 +2,8 @@ import { IEngine } from './engine';
 import { IColorRGB } from '../types/raw';
 import { ICamera } from '../camera';
 import RenderManager, { IRenderManager } from './render-manager';
-import Nesh, { IMesh } from './mesh';
+import { IMesh } from './mesh';
+import { ILight } from '../light/base-light';
 
 export interface IScene {
   engine: IEngine;
@@ -13,6 +14,7 @@ export interface IScene {
   renderManager?: IRenderManager;
 
   meshes: IMesh[];
+  lights: ILight[];
 
   render(): void;
 }
@@ -26,6 +28,7 @@ class Scene implements IScene {
   public renderManager: RenderManager = new RenderManager(this);
 
   public meshes: IMesh[] = [];
+  public lights: ILight[] = [];
 
   constructor(engine: IEngine) {
     this.engine = engine;

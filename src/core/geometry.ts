@@ -9,6 +9,7 @@ export interface IGeometry {
 
 interface IGeometryBufferViews {
   vertices?: BufferView;
+  normals?: BufferView;
   indices?: {
     [propName: string]: ElementBufferView;
   };
@@ -16,6 +17,7 @@ interface IGeometryBufferViews {
 
 interface IGeometryConfig {
   vertices?: BufferView | number[];
+  normals?: BufferView | number[];
   indices?: {
     [propName: string]: ElementBufferView | number[];
   };
@@ -24,17 +26,18 @@ interface IGeometryConfig {
 class Geometry implements IGeometry {
   public bufferViews: IGeometryBufferViews = {};
 
-  constructor({ vertices, indices }: IGeometryConfig = {}) {
+  constructor({ vertices, indices, normals }: IGeometryConfig = {}) {
     if (vertices && indices) {
       this.bufferViews = {
         vertices: this.createBufferView(vertices) as BufferView,
+        normals: this.createBufferView(normals) as BufferView,
         indices: this.createElementBufferView(indices)
       };
     }
   }
 
   protected createBufferView(
-    data: number[] | BufferView
+    data: number[] | BufferView = []
   ): BufferView | { [propName: string]: BufferView } {
     if (Array.isArray(data)) {
       return new BufferView({

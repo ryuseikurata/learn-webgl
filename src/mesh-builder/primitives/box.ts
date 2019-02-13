@@ -24,6 +24,15 @@ function createBox(
     [left, top, back]
   ];
 
+  const normalSources = [
+    [0, 0, 1],
+    [1, 0, 0],
+    [0, 0, -1],
+    [-1, 0, 0],
+    [0, 1, 0],
+    [0, -1, 0],
+  ];
+
   mesh.geometry = new Geometry({
     vertices: [
       0, 1, 2, 3,
@@ -36,6 +45,17 @@ function createBox(
       acc.push(...verticeSources[i]);
       return acc;
     }, []),
+
+    normals: [
+      0, 1, 2, 3, 4, 5
+    ].reduce((acc: number[], i) => {
+      let c = 4;
+      while (c > 0) {
+          acc.push(...normalSources[i]);
+          c--;
+      }
+      return acc;
+    },[]),
 
     indices: {
       default: [0, 1, 2, 3, 4, 5].reduce((acc: number[], i) => {

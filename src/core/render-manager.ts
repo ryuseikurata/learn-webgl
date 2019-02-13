@@ -3,6 +3,12 @@ import Mesh, { IMesh } from "./mesh";
 import BaseCamera, { IBaseCamera } from "../camera/base-camera";
 import { IGeometry } from "./geometry";
 import ShaderMaterial from "../material/shader-material";
+import DirectionalLight from "../light/directional-light";
+
+const LIGHT_TYPE_NULL = 1;
+const LIGHT_TYPE_AMBIENT = 2;
+const LIGHT_TYPE_DIRECTIONAL = 3;
+const LIGHT_TYPE_POINT = 4;
 
 export interface IRenderManager {
   scene: IScene;
@@ -57,14 +63,14 @@ class RenderManager implements IRenderManager {
         if (mesh.geometry.bufferViews.indices) {
           Object.keys(mesh.geometry.bufferViews.indices).forEach(key => {
             const material = mesh.materials[key];
-                        
-            engine.useProgram(
-              material.getProgram([])
-            );
+
+            engine.useProgram(material.getProgram([]));
 
             this.prepareMVPMatrix(mesh);
             this.prepareGeometry(mesh.geometry);
             this.prepareMaterial(material);
+            this.prepareLights();
+            this.prepareCameraPosition();
 
             this.drawMesh(mesh, key);
           });
@@ -76,7 +82,7 @@ class RenderManager implements IRenderManager {
   private prepareMVPMatrix(mesh: IMesh): void {
     const { engine, activeCamera } = this.scene;
     const camera = activeCamera ? activeCamera : new BaseCamera();
-    
+
     engine.uniform("uVMatrix", camera.getVMatrix());
     engine.uniform("uPMatrix", camera.getPMatrix());
     engine.uniform("uMMatrix", mesh.getWorldMatrix());
@@ -85,24 +91,33 @@ class RenderManager implements IRenderManager {
   private prepareGeometry(geometry: IGeometry): void {
     const { engine } = this.scene;
 
-    const { vertices } = geometry.bufferViews;
+    const { vertices, normals } = geometry.bufferViews;
 
     if (!vertices) {
       return;
     }
-    
+
     engine.attribute(
       "aPosition",
       vertices.buffer.glBuffer,
       vertices.byteStride,
       vertices.byteOffset
     );
+    
+    if (normals) {
+      engine.attribute(
+        "aNormal",
+        normals.buffer.glBuffer,
+        normals.byteStride,
+        normals.byteOffset
+      );
+    }
   }
 
   private prepareMaterial(material: ShaderMaterial): void {
     const { engine } = this.scene;
 
-    const { uniforms } = material;    
+    const { uniforms } = material;
 
     for (const name of uniforms) {
       const value = material.uniform(name);
@@ -112,9 +127,48 @@ class RenderManager implements IRenderManager {
     }
   }
 
-  private drawMesh(mesh: IMesh, key: string): void {    
+  private prepareLights(): void {
+    const { scene } = this;
     const { engine } = this.scene;
-    
+    const { lights } = scene;
+
+    // TODO: 登録した光源全てを使うようにする
+    const light = lights.shift();
+    if (!light) {
+      return;
+    }
+
+    const lColor = light ? light.getColor().map(c => c / 255) : [0, 0, 0];
+    const lIntensity = light ? light.getIntensity() : 0;
+    let lPosition;
+    let lType;
+
+    if (light instanceof DirectionalLight) {
+      lType = LIGHT_TYPE_DIRECTIONAL;
+      lPosition = light.getDirection();
+    } else {
+      lType = LIGHT_TYPE_NULL;
+      lPosition = [0, 0, 0];
+    }
+
+    engine.uniform("uLightType", lType);
+    engine.uniform("uLightColor", lColor);
+    engine.uniform("uLightIntensity", lIntensity);
+    engine.uniform("uLightPosition", lPosition);
+  }
+
+  private prepareCameraPosition(): void {
+    const { engine } = this.scene;
+    const { activeCamera } = this.scene;
+
+    if (activeCamera) {
+      engine.uniform("uCameraPosition", activeCamera.getPosition());
+    }
+}
+
+  private drawMesh(mesh: IMesh, key: string): void {
+    const { engine } = this.scene;
+
     const { indices } = mesh.geometry.bufferViews;
 
     if (indices && indices[key]) {

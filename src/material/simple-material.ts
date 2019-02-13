@@ -9,13 +9,15 @@ import vShaderSource from "../shaders/material-simple.vert";
 class SimpleMaterial extends ShaderMaterial {
   public color: IColorRGB = { r: 91, g: 162, b: 150 };
 
+  public diffuseColor: IColorRGB = { r: 255, g: 255, b: 255 };
+
   constructor() {
     super({
       name: "SIMPLE",
       vertexShaderSource: vShaderSource,
       fragmentShaderSource: fShaderSource,
       macros: [],
-      uniforms: ["uColor"],
+      uniforms: ["uDiffuseColor"],
       lighting: false,
       shadow: false
     });
@@ -27,18 +29,18 @@ class SimpleMaterial extends ShaderMaterial {
 
   public uniform(name: string): Float32Array | WebGLTexture {
     switch (name) {
-      case "uColor":
-        return this.getColor();
+      case "uDiffuseColor":
+        return this.getDiffuseColor();
       default:
-        throw new Error('undefined uniform name');
+        throw new Error("undefined uniform name");
     }
   }
 
-  public getColor(): IVector3 {
+  private getDiffuseColor(): IVector3 {
     return new Float32Array([
-      this.color.r / 255,
-      this.color.g / 255,
-      this.color.b / 255
+      this.diffuseColor.r / 255,
+      this.diffuseColor.g / 255,
+      this.diffuseColor.b / 255
     ]);
   }
 }
